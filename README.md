@@ -1,4 +1,4 @@
-# Docker container tu run multiple php
+# Docker container to run multiple php
 ## Compile image (new setup)
 ```bash
 docker compose build
