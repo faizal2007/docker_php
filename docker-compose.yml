@@ -2,14 +2,27 @@ version: '3'
 
 services:
   php73:
-    container_name: docker-php
+    container_name: docker-php-73
     build:
       context: .
       dockerfile: Dockerfile.73
-    hostname: docker-php
+    hostname: docker-php-73
     ports:
        - "8073:80"
     entrypoint: /app/entry-point.sh
     volumes:
       - ./php73:/var/www/html
     working_dir: /app
+
+  php82:
+      container_name: docker-php-82
+      build:
+        context: .
+        dockerfile: Dockerfile.82
+      hostname: docker-php-82
+      ports:
+         - "8082:80"
+      entrypoint: /app/entry-point.sh
+      volumes:
+        - ./php82:/var/www/html
+      working_dir: /app

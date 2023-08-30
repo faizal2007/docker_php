@@ -1,0 +1,44 @@
+FROM debian:bullseye-slim
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update -yq && apt-get install -yq software-properties-common \
+    wget gpg 
+RUN apt-get install -yq locales apt-utils
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    dpkg-reconfigure locales && \
+    update-locale LANG=en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+## add multiple php repository
+RUN sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' 
+RUN wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add - 
+RUN apt-get update -yq && apt-get dist-upgrade -yq
+
+## install php
+RUN apt-get update -yq && apt-get install -yq nano php8.2 php8.2-fpm php8.2-common php8.2-mysql php8.2-gmp \
+    php8.2-curl php8.2-intl php8.2-mbstring php8.2-xmlrpc php8.2-gd \
+    php8.2-xml php8.2-cli php8.2-zip php8.2-soap php8.2-common php-imagick php8.2-pgsql \
+    php8.2-xml php8.2-bcmath php-json php-redis zip php-geoip imagemagick
+
+## set php version
+RUN update-alternatives --set php /usr/bin/php8.2
+
+## install Composer
+RUN wget -O -  https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+## install nodejs
+RUN wget -O - https://deb.nodesource.com/setup_lts.x | bash - &&\
+    apt-get install -yq nodejs
+
+RUN npm install --global yarn
+RUN npm install -g npm@9.8.1
+
+RUN wget -q -O - https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+RUN apt-get update -yq && apt-get install nginx-extras -yq
+COPY ./entry-point.sh /app/entry-point.sh
+COPY ./default.conf /etc/nginx/sites-available/default
+RUN sed -i "s#listen = .*#listen = 127.0.0.1:9000#" /etc/php/8.2/fpm/pool.d/www.conf
+RUN sed -i "s#pid = .*#pid = /run/php8.2-fpm.pid#" /etc/php/8.2/fpm/php-fpm.conf
+RUN chmod +x /app/entry-point.sh
+# Run the Nginx server
+#ENTRYPOINT nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
