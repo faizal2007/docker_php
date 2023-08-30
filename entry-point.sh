@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Custom actions or commands to perform before starting Nginx
-# ...
-
+# Start php-fpm
+#php-fpm7.3 -F -R
+php-fpm7.3 -D -R
 # Start Nginx
-nginx -g 'daemon off;'
+nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
 
 
