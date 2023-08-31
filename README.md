@@ -19,6 +19,12 @@ php 8.2
 ```bash
 docker compose up php82
 ```
+phpmyadmin
+```bash
+## generate phpmyadmin config 
+./scripts/config.inc-gen.sh
+docker compose up phpmyadmin
+```
 ## list running container
 ```bash
 docker ps
