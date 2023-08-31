@@ -22,6 +22,7 @@ docker compose up php82
 phpmyadmin
 ```bash
 ## generate phpmyadmin config 
+### connect to db at main host
 ./scripts/config.inc-gen.sh
 docker compose up phpmyadmin
 ```
