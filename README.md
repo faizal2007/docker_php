@@ -1,5 +1,5 @@
 # Docker container to run multiple php
-## Compile image (new setup)
+## Compile image (new setup/changes applied in Dockerfile)
 ```bash
 docker compose build
 ```
