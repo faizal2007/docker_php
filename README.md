@@ -35,3 +35,19 @@ docker ps
 ```bash
 docker exec -it docker-php-82 bash
 ```
+
+## PHP IntelliSense for visual studio code
+Create wrapper
+```bash
+sudo cat <<EOF> /usr/local/bin/docker-php
+#!/bin/bash
+docker exec -i docker-php-82 php "$@"
+EOF
+
+sudo chmod +x /usr/local/bin/docker-php
+```
+In settings.json
+add
+```json
+"php.validate.executablePath": "/usr/local/bin/docker-php"
+```
