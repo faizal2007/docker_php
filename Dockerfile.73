@@ -39,6 +39,8 @@ COPY ./scripts/entry-point.sh /app/entry-point.sh
 COPY ./conf/default.conf /etc/nginx/sites-available/default
 RUN sed -i "s#listen = .*#listen = 127.0.0.1:9000#" /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i "s#pid = .*#pid = /run/php7.3-fpm.pid#" /etc/php/7.3/fpm/php-fpm.conf
+RUN chown -R www-data:www-data /var/www/html/
+RUN chmod -R 777 /var/www/html/
 RUN chmod +x /app/entry-point.sh
 # Run the Nginx server
 #ENTRYPOINT nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
