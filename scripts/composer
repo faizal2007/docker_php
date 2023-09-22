@@ -1,0 +1,2 @@
+#!/bin/sh
+docker exec -i docker-php-73 composer "$@"

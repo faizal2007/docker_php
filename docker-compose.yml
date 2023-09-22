@@ -5,12 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.73
+    env_file:
+       - .env
     hostname: docker-php-73
     ports:
        - "8073:80"
     entrypoint: /root/entry-point.sh
     volumes:
-      - ./php73/:/var/www/html
+      - ${WORKING_DIR}:/var/www/html
     working_dir: /var/www/html/
 
   php82:
@@ -19,11 +21,13 @@ services:
         context: .
         dockerfile: Dockerfile.82
       hostname: docker-php-82
+      env_file:
+        - .env
       ports:
          - "8082:80"
       entrypoint: /root/entry-point.sh
       volumes:
-        - ./php82:/var/www/html
+        - ./${WORKING_DIR}:/var/www/html
       working_dir: /var/www/html
 
   phpmyadmin:
