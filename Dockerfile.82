@@ -15,7 +15,7 @@ RUN wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add -
 RUN apt-get update -yq && apt-get dist-upgrade -yq
 
 ## install php
-RUN apt-get update -yq && apt-get install -yq nano php8.2 php8.2-fpm php8.2-common php8.2-mysql php8.2-gmp \
+RUN apt-get update -yq && apt-get install -yq nano curl gnupg php8.2 php8.2-fpm php8.2-common php8.2-mysql php8.2-gmp \
     php8.2-curl php8.2-intl php8.2-mbstring php8.2-xmlrpc php8.2-gd \
     php8.2-xml php8.2-cli php8.2-zip php8.2-soap php8.2-common php-imagick php8.2-pgsql \
     php8.2-xml php8.2-bcmath php-json php-redis zip php-geoip imagemagick
@@ -27,20 +27,21 @@ RUN update-alternatives --set php /usr/bin/php8.2
 RUN wget -O -  https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ## install nodejs
-RUN wget -O - https://deb.nodesource.com/setup_lts.x | bash - &&\
-    apt-get install -yq nodejs
+ENV NODE_MAJOR=18
+RUN mkdir -p /etc/apt/keyrings
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN apt-get update && apt-get install -yq nodejs
 
 RUN npm install --global yarn
-RUN npm install -g npm@9.8.1
+RUN npm install -g npm
 
 RUN wget -q -O - https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 RUN apt-get update -yq && apt-get install nginx-extras -yq
-COPY ./scripts/entry-point.sh /app/entry-point.sh
+COPY ./scripts/entry-point.sh /root/entry-point.sh
 COPY ./conf/default.conf /etc/nginx/sites-available/default
 RUN sed -i "s#listen = .*#listen = 127.0.0.1:9000#" /etc/php/8.2/fpm/pool.d/www.conf
 RUN sed -i "s#pid = .*#pid = /run/php8.2-fpm.pid#" /etc/php/8.2/fpm/php-fpm.conf
 RUN chown -R www-data:www-data /var/www/html/
 RUN chmod -R 777 /var/www/html/
-RUN chmod +x /app/entry-point.sh
-# Run the Nginx server
-#ENTRYPOINT nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
+RUN chmod +x /root/entry-point.sh
