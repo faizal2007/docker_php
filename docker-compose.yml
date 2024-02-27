@@ -1,4 +1,8 @@
 version: '3'
+
+networks:
+  db:
+    driver: bridge
 services:
   php73:
     container_name: docker-php-73
@@ -30,12 +34,23 @@ services:
         - ./${WORKING_DIR}:/var/www/html
       working_dir: /var/www/html
 
+  mariadb:
+        image: "mariadb:latest"
+        restart: always
+        environment:
+          MARIADB_ROOT_PASSWORD: cyb3rsp@c3
+        ports:
+            - 3306:3306
+        networks:
+            db:
   phpmyadmin:
-      image: "phpmyadmin:latest"
-      restart: unless-stopped
-      environment:
-        - PMA_ARBITRARY=1
-      ports:
-        - 8080:80
-      volumes:
-      - ./conf/config.inc.php:/etc/phpmyadmin/config.inc.php
+          image: "phpmyadmin:latest"
+          restart: unless-stopped
+          environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=mariadb
+            - PMA_PORT=3306
+          ports:
+            - 8080:80
+          networks:
+            db:
