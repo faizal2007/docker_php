@@ -16,8 +16,10 @@ services:
        - "8073:80"
     entrypoint: /root/entry-point.sh
     volumes:
-      - ${WORKING_DIR}:/var/www/html
-    working_dir: /var/www/html/
+      - ./${WORKING_DIR}:/var/www/html
+    working_dir: ${WORKING_DIR}
+    networks:
+      db:
 
   php82:
       container_name: docker-php-82
@@ -32,13 +34,15 @@ services:
       entrypoint: /root/entry-point.sh
       volumes:
         - ./${WORKING_DIR}:/var/www/html
-      working_dir: /var/www/html
+      working_dir: ./${WORKING_DIR}
+      networks:
+        db:
 
   mariadb:
         image: "mariadb:latest"
         restart: always
         environment:
-          MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+          MARIADB_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
         ports:
             - 3306:3306
         networks:
