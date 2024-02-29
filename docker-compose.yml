@@ -16,8 +16,8 @@ services:
        - "8073:80"
     entrypoint: /root/entry-point.sh
     volumes:
-      - ./${WORKING_DIR}:/var/www/html
-    working_dir: ${WORKING_DIR}
+      - ${WORKING_DIR}:${DOCUMENT_ROOT}
+    working_dir: ${DOCUMENT_ROOT}
     networks:
       db:
 
@@ -33,8 +33,8 @@ services:
          - "8082:80"
       entrypoint: /root/entry-point.sh
       volumes:
-        - ./${WORKING_DIR}:/var/www/html
-      working_dir: ./${WORKING_DIR}
+        - ${WORKING_DIR}:/var/www/html
+      working_dir: ${DOCUMENT_ROOT}
       networks:
         db:
 
