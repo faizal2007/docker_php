@@ -11,20 +11,30 @@ docker compose up
 # docker compose up -d
 ```
 ## Run docker by version
-php 7.3
+### php 7.3
 ```bash
 docker compose up php73
 ```
-php 8.2
+### php 8.2
 ```bash
 docker compose up php82
 ```
-phpmyadmin
+### phpmyadmin
 ```bash
-## generate phpmyadmin config 
 ### connect to db at main host
 docker compose up phpmyadmin
 ```
+### mariadb
+```bash
+docker compose up mariadb
+```
+### Down container
+```bash
+docker compose down
+## stop container and delete data store
+docker compose down --volumes
+```
+
 ## list running container
 ```bash
 docker ps
