@@ -18,7 +18,7 @@ services:
     environment:
       - TZ={LOCALTIME}
     volumes:
-      - ${WORKING_DIR}:${DOCUMENT_ROOT}
+      - ${WORKING_DIR}:/var/www/html
     working_dir: ${DOCUMENT_ROOT}
     networks:
       db:
