@@ -15,6 +15,8 @@ services:
     ports:
        - "8073:80"
     entrypoint: /root/entry-point.sh
+    environment:
+      - TZ={LOCALTIME}
     volumes:
       - ${WORKING_DIR}:${DOCUMENT_ROOT}
     working_dir: ${DOCUMENT_ROOT}
@@ -32,6 +34,8 @@ services:
       ports:
          - "8082:80"
       entrypoint: /root/entry-point.sh
+      environment:
+        - TZ={LOCALTIME}
       volumes:
         - ${WORKING_DIR}:/var/www/html
       working_dir: ${DOCUMENT_ROOT}

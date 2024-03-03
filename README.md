@@ -34,7 +34,11 @@ docker compose down
 ## stop container and delete data store
 docker compose down --volumes
 ```
-
+> if any change made in docker-compose.yml
+> container need to be rebuild
+```bash
+docker compose up --build php82
+```
 ## list running container
 ```bash
 docker ps
