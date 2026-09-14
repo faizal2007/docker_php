@@ -1,2 +1,5 @@
 #!/bin/sh
-docker exec -i docker-php-73 composer "$@"
+# Run Composer inside a PHP container.
+# Target another container: PHP_CONTAINER=docker-php-73 scripts/composer install
+container="${PHP_CONTAINER:-docker-php-82}"
+exec docker exec -i "$container" composer "$@"

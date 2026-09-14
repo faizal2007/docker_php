@@ -1,2 +1,9 @@
 #!/bin/sh
-docker exec -it docker-php-73 bash
+# Open a bash shell inside a PHP container.
+# Target another container: PHP_CONTAINER=docker-php-73 scripts/bash
+container="${PHP_CONTAINER:-docker-php-82}"
+if [ -t 0 ]; then
+    exec docker exec -it "$container" bash
+else
+    exec docker exec -i "$container" bash
+fi

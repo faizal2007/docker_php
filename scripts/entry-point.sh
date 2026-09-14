@@ -1,15 +1,10 @@
 #!/bin/bash
+set -e
 
-# Start php-fpm
-#php-fpm7.3 -F -R
-which php-fpm7.3 > /dev/null && php-fpm7.3 -D -R
-which php-fpm8.2 > /dev/null && php-fpm8.2 -D -R
-# Start Nginx
-cat <<EOF> /var/www/html/index.php
-<?php phpinfo();?>
-EOF
+# Start PHP-FPM (daemonized; runs as www-data via the default pool config)
+php-fpm -D
 
-sed -i "s|\(root\s\+\)[^;]\+;|\1${DOCUMENT_ROOT};|" /etc/nginx/sites-available/default
-nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
+# Start nginx in the foreground
+exec nginx -g 'daemon off;'
 
 

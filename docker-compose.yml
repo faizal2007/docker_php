@@ -1,64 +1,137 @@
 
-networks:
-  db:
-    driver: bridge
 services:
   php73:
     container_name: docker-php-73
     build:
       context: .
-      dockerfile: Dockerfile.73
-    env_file:
-       - .env
+      args:
+        PHP_VERSION: "7.3"
+    env_file: .env
     hostname: docker-php-73
-    ports:
-       - "8073:80"
-    entrypoint: /root/entry-point.sh
     environment:
-      - TZ={LOCALTIME}
+      TZ: ${LOCALTIME:-UTC}
+    ports:
+      - "8073:80"
     volumes:
-      - ${WORKING_DIR}:/var/www/html
-    working_dir: ${DOCUMENT_ROOT}
+      - ${WORKING_DIR:-./www}:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      db:
+      - db
+    restart: unless-stopped
 
   php82:
-      container_name: docker-php-82
-      build:
-        context: .
-        dockerfile: Dockerfile.82
-      hostname: docker-php-82
-      env_file:
-        - .env
-      ports:
-         - "8082:80"
-      entrypoint: /root/entry-point.sh
-      environment:
-        - TZ={LOCALTIME}
-      volumes:
-        - ${WORKING_DIR}:/var/www/html
-      working_dir: ${DOCUMENT_ROOT}
-      networks:
-        db:
+    container_name: docker-php-82
+    build:
+      context: .
+      args:
+        PHP_VERSION: "8.2"
+    env_file: .env
+    hostname: docker-php-82
+    environment:
+      TZ: ${LOCALTIME:-UTC}
+    ports:
+      - "8082:80"
+    volumes:
+      - ${WORKING_DIR:-./www}:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - db
+    restart: unless-stopped
+
+  php85:
+    container_name: docker-php-85
+    build:
+      context: .
+      args:
+        PHP_VERSION: "8.5"
+    env_file: .env
+    hostname: docker-php-85
+    environment:
+      TZ: ${LOCALTIME:-UTC}
+    ports:
+      - "8085:80"
+    volumes:
+      - ${WORKING_DIR:-./www}:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - db
+    restart: unless-stopped
 
   mariadb:
-        image: "mariadb:latest"
-        restart: always
-        environment:
-          MARIADB_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD}"
-        ports:
-            - 3306:3306
-        networks:
-            db:
+    image: mariadb:10.11
+    container_name: docker-php-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set in .env}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-app}
+      MARIADB_USER: ${MARIADB_USER:-app}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-app}
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "${MARIADB_PORT:-3306}:3306"
+    networks:
+      - db
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: docker-php-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - db
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   phpmyadmin:
-          image: "phpmyadmin:latest"
-          restart: unless-stopped
-          environment:
-            - PMA_ARBITRARY=1
-            - PMA_HOST=mariadb
-            - PMA_PORT=3306
-            - UPLOAD_LIMIT=400M
-          ports:
-            - 8080:80
-          networks:
-            db:
+    image: phpmyadmin:5.2
+    container_name: docker-php-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 400M
+    ports:
+      - "${PMA_PORT:-8080}:80"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - db
+
+networks:
+  db:
+    driver: bridge
+
+volumes:
+  dbdata:
+  redisdata:
+
